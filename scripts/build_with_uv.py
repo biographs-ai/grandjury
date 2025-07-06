@@ -34,20 +34,26 @@ def main():
     
     # Check if we're in the right directory
     root_dir = Path.cwd()
-    pypi_dir = root_dir / "pypi"
     
-    if not pypi_dir.exists():
-        print("❌ Error: pypi/ directory not found. Run this from the project root.")
+    # Check if we're in the scripts directory and need to go up
+    if root_dir.name == "scripts":
+        root_dir = root_dir.parent
+        print("📂 Detected running from scripts/, using parent directory")
+    
+    # Look for pyproject.toml in root
+    pyproject_file = root_dir / "pyproject.toml"
+    if not pyproject_file.exists():
+        print("❌ Error: pyproject.toml not found. Run this from the project root or scripts/ directory.")
         sys.exit(1)
     
     print(f"📂 Working directory: {root_dir}")
-    print(f"📦 Package directory: {pypi_dir}")
+    print(f"📦 Package directory: {root_dir}")
     
     # Step 1: Clean previous builds
     print("\n🧹 Cleaning previous builds...")
-    dist_dir = pypi_dir / "dist"
-    build_dir = pypi_dir / "build"
-    egg_info = pypi_dir / "grandjury.egg-info"
+    dist_dir = root_dir / "dist"
+    build_dir = root_dir / "build"
+    egg_info = root_dir / "grandjury.egg-info"
     
     for dir_to_clean in [dist_dir, build_dir, egg_info]:
         if dir_to_clean.exists():
@@ -57,10 +63,10 @@ def main():
     # Step 2: Verify package structure
     print("\n📋 Verifying package structure...")
     required_files = [
-        pypi_dir / "pyproject.toml",
-        pypi_dir / "README.md", 
-        pypi_dir / "grandjury" / "__init__.py",
-        pypi_dir / "grandjury" / "api_client.py",
+        root_dir / "pyproject.toml",
+        root_dir / "README.md", 
+        root_dir / "grandjury" / "__init__.py",
+        root_dir / "grandjury" / "api_client.py",
     ]
     
     missing_files = [f for f in required_files if not f.exists()]
@@ -83,11 +89,11 @@ def main():
     
     # Step 4: Install build dependencies
     print("\n📦 Installing build dependencies...")
-    run_command(["uv", "add", "--dev", "build", "twine"], cwd=pypi_dir)
+    run_command(["uv", "add", "--dev", "build", "twine"], cwd=root_dir)
     
     # Step 5: Build the package
     print("\n🔨 Building package...")
-    run_command(["uv", "run", "python", "-m", "build"], cwd=pypi_dir)
+    run_command(["uv", "run", "python", "-m", "build"], cwd=root_dir)
     
     # Step 6: Check build artifacts
     print("\n📦 Checking build artifacts...")
@@ -102,7 +108,7 @@ def main():
     # Step 7: Validate package with twine
     print("\n🔍 Validating package with twine...")
     try:
-        run_command(["uv", "run", "twine", "check", "dist/*"], cwd=pypi_dir)
+        run_command(["uv", "run", "twine", "check", "dist/*"], cwd=root_dir)
         print("✅ Package validation passed")
     except subprocess.CalledProcessError:
         print("⚠️ Package validation had warnings (may still be publishable)")

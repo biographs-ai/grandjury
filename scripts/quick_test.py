@@ -8,8 +8,9 @@ import sys
 import os
 from pathlib import Path
 
-# Add the pypi directory to the path for testing
-sys.path.insert(0, os.path.join(os.getcwd(), 'pypi'))
+# Add the root directory to the path for testing
+root_dir = Path(__file__).parent.parent  # Go up from scripts/ to root
+sys.path.insert(0, str(root_dir))
 
 def test_package():
     """Quick package verification."""
