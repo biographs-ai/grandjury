@@ -79,14 +79,19 @@ def create_git_tag(version):
     return True
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 2 or sys.argv[1] in ['-h', '--help']:
         print("Usage: python scripts/bump_version.py [major|minor|patch]")
         print("Example: python scripts/bump_version.py patch")
-        sys.exit(1)
+        print("\nBump types:")
+        print("  patch  - Bug fixes (1.0.0 → 1.0.1)")
+        print("  minor  - New features (1.0.0 → 1.1.0)")
+        print("  major  - Breaking changes (1.0.0 → 2.0.0)")
+        sys.exit(0 if len(sys.argv) == 2 and sys.argv[1] in ['-h', '--help'] else 1)
     
     bump_type = sys.argv[1]
     if bump_type not in ['major', 'minor', 'patch']:
         print("❌ bump_type must be 'major', 'minor', or 'patch'")
+        print("Run with --help for usage information")
         sys.exit(1)
     
     try:
