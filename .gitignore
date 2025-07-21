@@ -175,3 +175,6 @@ Thumbs.db
 *.tmp
 *.temp
 test_install.py
+
+# Internal specific directories
+/jupyter_internal/
